@@ -9,6 +9,7 @@ from agno.db.postgres import PostgresDb
 from agno.knowledge import Knowledge
 from agno.knowledge.embedder.openai import OpenAIEmbedder
 from agno.vectordb.pgvector import PgVector, SearchType
+from os import getenv
 
 from db.url import db_url
 
@@ -45,7 +46,11 @@ def create_knowledge(name: str, table_name: str) -> Knowledge:
             db_url=db_url,
             table_name=table_name,
             search_type=SearchType.hybrid,
-            embedder=OpenAIEmbedder(id="text-embedding-3-small"),
+            embedder=OpenAIEmbedder(
+                id="text-embedding-3-small",
+                api_key=getenv("OPENAI_EMBEDDING_API_KEY") or getenv("OPENAI_API_KEY"),
+                base_url=getenv("OPENAI_EMBEDDING_BASE_URL") or getenv("OPENAI_BASE_URL") or "https://api.openai.com/v1",
+            ),
         ),
         contents_db=get_postgres_db(contents_table=f"{table_name}_contents"),
     )

@@ -98,7 +98,10 @@ def _transcribe_audio(audio: Audio, index: int) -> str:
     filename = f"whatsapp-audio-{index}.{extension}"
     mime_type = audio.mime_type or f"audio/{extension}"
 
-    transcription = OpenAI().audio.transcriptions.create(
+    transcription = OpenAI(
+        api_key=getenv("OPENAI_AUDIO_API_KEY") or getenv("OPENAI_API_KEY"),
+        base_url=getenv("OPENAI_AUDIO_BASE_URL") or getenv("OPENAI_BASE_URL") or "https://api.openai.com/v1",
+    ).audio.transcriptions.create(
         model=model,
         file=(filename, content, mime_type),
         language=language,

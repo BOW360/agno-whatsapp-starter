@@ -2,17 +2,16 @@
 My Agent
 --------
 
-Seu agente de IA pessoal. Personalize a persona em `agents/prompts.py`
+Seu agente de IA pessoal. Customize a persona em `agents/prompts.py`
 e os guardrails em `agents/guardrails/security.py`.
 
-Rodar standalone:
-    python -m agents.my_agent
+Suporta OpenAI e OpenRouter (via OPENAI_BASE_URL).
 """
 
 from os import getenv
 
 from agno.agent import Agent
-from agno.models.openai import OpenAIResponses
+from agno.models.openai import OpenAIChat
 
 from agents.guardrails import ContentSafetyGuardrail, enforce_safe_whatsapp_output
 from agents.hooks import prepare_multimodal_input
@@ -23,7 +22,9 @@ from db import get_postgres_db
 # Setup
 # ---------------------------------------------------------------------------
 agent_db = get_postgres_db()
-model_id = getenv("OPENAI_MODEL", "gpt-5-mini")
+model_id = getenv("OPENAI_MODEL", "gpt-4o")
+api_key = getenv("OPENAI_API_KEY", "")
+base_url = getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
 
 # ---------------------------------------------------------------------------
 # Agent
@@ -31,7 +32,11 @@ model_id = getenv("OPENAI_MODEL", "gpt-5-mini")
 my_agent = Agent(
     id="my-agent",
     name="My Agent",
-    model=OpenAIResponses(id=model_id),
+    model=OpenAIChat(
+        id=model_id,
+        api_key=api_key,
+        base_url=base_url,
+    ),
     db=agent_db,
     instructions=instructions,
     enable_agentic_memory=True,
